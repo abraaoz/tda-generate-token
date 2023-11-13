@@ -4,28 +4,27 @@ import subprocess
 import sys
 
 from PyQt6.QtCore import QSize, Qt, QTemporaryDir
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (QApplication, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPushButton,
                              QVBoxLayout, QWidget)
 from tda import auth
 
-window_title = "Gerador de Token para API da TD Ameritrade"
+window_title = "TD Ameritrade API Token Generator"
 
 def open_file_explorer(file_path: str):
-    # Verifica se o arquivo existe
+    # Check if the file exists
     if os.path.exists(file_path):
         if sys.platform == 'win32':
-            # Windows: abre a pasta e seleciona o arquivo
+            # Windows: open the folder and select the file
             subprocess.run(f'explorer /select,"{file_path}"', shell=True)
         elif sys.platform == 'darwin':
-            # macOS: apenas abre a pasta, não seleciona o arquivo
+            # macOS: just opens the folder, does not select the file
             subprocess.run(['open', os.path.dirname(file_path)])
         else:
-            # Linux e outros Unix-like: apenas abre a pasta, não seleciona o arquivo
+            # Linux and other Unix-like: just opens the folder, does not select the file
             subprocess.run(['xdg-open', os.path.dirname(file_path)])
     else:
-        print(f"O arquivo '{file_path}' não existe.")
+        print(f"The file '{file_path}' does not exist.")
 
 def make_webdriver():
     # Import selenium here because it's slow to import
@@ -39,21 +38,21 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowIcon(QIcon('icon.ico'))
         self.setWindowTitle(window_title)
         self.setFixedSize(QSize(600, 400))
 
-        # Layout principal
+        # Main layout
         layout = QVBoxLayout()
 
-        # Instruções
+        # Instructions
         info_label = QLabel('''
             <style>
-                li { margin-bottom: 30px; }
+                li { margin-bottom: 20px; }
+                a { color: blue; }
             </style>
             <ol>
-                <li>Acesse <a href="https://developer.tdameritrade.com/user/me/apps">https://developer.tdameritrade.com/user/me/apps</a> e faça login com sua conta TD Ameritrade.</li>
-                <li>Crie um app.
+                <li>Go to <a href="https://developer.tdameritrade.com/user/me/apps">https://developer.tdameritrade.com/user/me/apps</a> and log in with your TD Ameritrade account.</li>
+                <li>Create an app.
                     <table border="1" cellspacing="0" cellpadding="5">
                         <tr><th align="left">App Name</th><td>App</td></tr>
                         <tr><th align="left">Callback URL</th><td>http://localhost/auth</td></tr>
@@ -61,28 +60,31 @@ class MainWindow(QMainWindow):
                         <tr><th align="left">Order Limit</th><td>120</td></tr>
                     </table>
                 </li>
-            </ol>''')
+            </ol>
+            <br><br>
+            <small>Developed by <a href="https://github.com/abraaoz">abraaoz</a></small>
+        ''')
         info_label.setWordWrap(True)
         info_label.setOpenExternalLinks(True)
         info_label.setTextFormat(Qt.TextFormat.RichText)
         layout.addWidget(info_label)
 
-        # Rótulo para o campo Consumer Key
+        # Label for the Consumer Key field
         self.label_consumer_key = QLabel("Consumer Key:")
         self.label_consumer_key.setFixedHeight(20)
         layout.addWidget(self.label_consumer_key)
 
-        # Campo de entrada para Consumer Key
+        # Input field for Consumer Key
         self.consumer_key_input = QLineEdit()
-        self.consumer_key_input.setPlaceholderText("Digite a Consumer Key aqui")
+        self.consumer_key_input.setPlaceholderText("Enter the Consumer Key here")
         layout.addWidget(self.consumer_key_input)
 
-        # Botão para gerar token
-        self.generate_token_button = QPushButton("Gerar Token")
+        # Button to generate token
+        self.generate_token_button = QPushButton("Generate Token")
         self.generate_token_button.clicked.connect(self.generate_token)
         layout.addWidget(self.generate_token_button)
 
-        # Configura o widget central com o layout
+        # Set the central widget with the layout
         central_widget = QWidget()
         central_widget.setContentsMargins(20, 20, 20, 20)
         central_widget.setLayout(layout)
@@ -92,10 +94,10 @@ class MainWindow(QMainWindow):
         consumer_key = self.consumer_key_input.text()
         if len(consumer_key) == 32:
             print(f"Consumer Key: {consumer_key}")
-            self.setWindowTitle("Gerando token...")
+            self.setWindowTitle("Generating token...")
             self.centralWidget().setEnabled(False)
 
-            # Cria um diretório temporário
+            # Create a temporary directory
             temp_dir = QTemporaryDir()
             if temp_dir.isValid():
                 token_path = os.path.join(temp_dir.path(), "tda-api-token.json")
@@ -106,16 +108,16 @@ class MainWindow(QMainWindow):
                     webdriver_func=make_webdriver,
                 )
 
-                # Pergunta ao usuário onde salvar o arquivo
-                save_path, _ = QFileDialog.getSaveFileName(self, "Salvar Token", "tda-api-token.json", "JSON Files (*.json)")
+                # Ask the user where to save the file
+                save_path, _ = QFileDialog.getSaveFileName(self, "Save Token", "tda-api-token.json", "JSON Files (*.json)")
                 if save_path:
-                    # Copia o arquivo para o local escolhido
+                    # Copy the file to the chosen location
                     os.replace(token_path, save_path)
 
                     msg = QMessageBox()
-                    msg.setWindowTitle("Sucesso")
+                    msg.setWindowTitle("Success")
                     msg.setIcon(QMessageBox.Icon.Information)
-                    msg.setText(f'O token foi salvo em {save_path}')
+                    msg.setText(f'The token has been saved at {save_path}')
                     msg.exec()
 
                     self.consumer_key_input.clear()
@@ -126,16 +128,16 @@ class MainWindow(QMainWindow):
                     open_file_explorer(save_path)
             else:
                 msg = QMessageBox()
-                msg.setWindowTitle("Erro")
+                msg.setWindowTitle("Error")
                 msg.setIcon(QMessageBox.Icon.Warning)
-                msg.setText('Falha ao criar pasta temporária.')
+                msg.setText('Failed to create a temporary folder.')
                 msg.exec()
         else:
             msg = QMessageBox()
-            msg.setWindowTitle("Atenção")
+            msg.setWindowTitle("Attention")
             msg.setIcon(QMessageBox.Icon.Information)
-            msg.setText('A consumer key deve ter 32 caracteres.')
-            msg.setInformativeText('Exemplo: L6UMARTJYFQ253MHG6WGD7S6XZ797RD6')
+            msg.setText('The consumer key must have 32 characters.')
+            msg.setInformativeText('Example: L6UMARTJYFQ253MHG6WGD7S6XZ797RD6')
             msg.exec()
 
 if __name__ == '__main__':

@@ -1,19 +1,30 @@
-# Gerador de Token para API da TD Ameritrade
+# TD Ameritrade API Token Generator
 
-## Modo Dev
+> Disclaimer: tda-generate-token is an unofficial API utility. It is in no way endorsed by or affiliated with TD Ameritrade or any associated organization. Make sure to read and understand the terms of service of the underlying API before using this package. This authors accept no responsibility for any damage that might stem from use of this package. See the [LICENSE](./LICENSE) file for more details.
 
-1. `poetry install`
+### The goal of this project is to facilitate the generation of a JSON file (`tda-api-token.json`) to be used by the Python library [tda-api](https://tda-api.readthedocs.io/).
 
-2. `poetry run python -m app`
+## Download
 
-## Modo Prod
+Windows, Linux, Mac releases are available at [Releases Page](releases/latest)
 
-`poetry run pyinstaller app/__main__.py`
+![App Screenshot](./screenshot.png)
 
 ---
 
-- Fix `qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.`
+## Development mode
 
-  ```bash
-  sudo apt install libxcb-*
-  ```
+1. Make sure the `POETRY_VIRTUALENVS_IN_PROJECT` environment variable is set:
+    ```bash
+    export POETRY_VIRTUALENVS_IN_PROJECT=true
+    ```
+
+2. `poetry install`
+
+3. `poetry run python -m app`
+
+    If the application window does not appear in development mode on Linux, run the command below and try again:
+
+      ```bash
+      sudo apt install -y libxcb* libxkb*
+      ```
