@@ -6,7 +6,7 @@
 
 ## Download
 
-Windows, Linux, Mac releases are available at [Releases Page](releases/latest)
+Windows, Linux, Mac releases are available at [Releases Page](https://github.com/abraaoz/tda-generate-token/releases/latest)
 
 ![App Screenshot](./screenshot.png)
 
